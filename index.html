@@ -87,7 +87,7 @@ function makeSuite(i){
  sphere(pod,0,1.72,-.12,.13,.13,.13,mat(0xd8c17b));
  // nameplate-like light strip, no text baked into geometry
  box(pod,0,2.15,-1.275,.8,.045,.025,gold);
- const human=makeHuman(i);human.position.set(0,0,.62);human.scale.setScalar(.82);pod.add(human);
+ const human=makeHuman(i);human.position.set(0,0,.62);human.rotation.y=Math.PI;human.scale.setScalar(.82);pod.add(human);
  pod.userData.index=i;
  return pod;
 }
@@ -96,7 +96,7 @@ for(let i=0;i<13;i++)makeSuite(i);
 const central=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.4,.35,48),new THREE.MeshStandardMaterial({color:0x9e8247,metalness:.7,roughness:.25}));central.position.y=.25;scene.add(central);
 const orb=new THREE.Mesh(new THREE.SphereGeometry(.5,32,24),new THREE.MeshPhysicalMaterial({color:0x45b49a,metalness:.35,roughness:.12,emissive:0x0c4b3c,emissiveIntensity:.6}));orb.position.y=1.15;scene.add(orb);
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();renderer.domElement.addEventListener('click',e=>{const r=renderer.domElement.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-((e.clientY-r.top)/r.height*2-1);ray.setFromCamera(mouse,camera);let hits=ray.intersectObjects(room.children,true);if(hits.length){let o=hits[0].object;while(o.parent&&o.userData.index===undefined)o=o.parent;if(o.userData.index!==undefined)selectPerson(o.userData.index)}});
-function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(canvas);resize();function animate(){requestAnimationFrame(animate);controls.update();orb.rotation.y+=.003;room.children.forEach((g,i)=>{g.position.y=.025*Math.sin(Date.now()*.001+i)});renderer.render(scene,camera)}animate();window.pickAvatar=i=>{room.children.forEach((g,j)=>{g.scale.setScalar(j===i?1.13:1);})};
+function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(canvas);resize();function animate(){requestAnimationFrame(animate);controls.update();orb.rotation.y+=.003;room.children.forEach((g,i)=>{g.position.y=.025*Math.sin(Date.now()*.001+i);const h=g.children.find(o=>o.userData.index!==undefined);if(h)h.rotation.z=.012*Math.sin(Date.now()*.0015+i)});renderer.render(scene,camera)}animate();window.pickAvatar=i=>{room.children.forEach((g,j)=>{g.scale.setScalar(j===i?1.13:1);})};
 function addBubble(t,who){let d=document.createElement('div');d.className='bubble '+who;d.textContent=t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
 function keyValue(){return localStorage.getItem('amirai_gemini_key')||''}
 function voice(text){if(!('speechSynthesis'in window)){status.textContent='گفتار در این مرورگر پشتیبانی نمی‌شود.';return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='fa-AF';u.rate=.92;const vs=speechSynthesis.getVoices();u.voice=vs.find(v=>v.lang.toLowerCase().startsWith('fa'))||vs.find(v=>v.lang.toLowerCase().startsWith('ur'))||null;speechSynthesis.speak(u)}
