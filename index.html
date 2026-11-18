@@ -5,8 +5,8 @@
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 </head><body><header><div><h1>AMIR AI</h1><p>دنیای هوشمند شخصی</p></div><span class="pill">نسخهٔ رایگان آزمایشی</span></header><main>
-<section class="hero"><h2>به دنیای AMIR AI خوش آمدی</h2><p>شخصیت را انتخاب کن، وارد گفت‌وگو شو و محیط سه‌بعدی را با لمس بچرخان و زوم کن.</p><div class="toolbar"><button id="settingsBtn">تنظیم اتصال هوش مصنوعی</button><button class="secondary" id="voiceHelp">راهنمای صدا</button><span class="pill" id="aiState">هوش مصنوعی: تنظیم نشده</span></div></section>
-<section class="section"><h2>دنیای سه‌بعدی</h2><div class="world"><canvas id="scene"></canvas><div class="scenehint">لمس و کشیدن: چرخش • دو انگشت/چرخ: زوم • لمس شخصیت: انتخاب</div></div><p class="muted">مدل‌های فعلی سه‌بعدی نمایشی و کم‌حجم‌اند؛ چهره‌های فوتورئال و انیمیشن لب‌خوانی اختصاصی هنوز اضافه نشده‌اند.</p></section>
+<section class="hero"><h2>به دنیای AMIR AI خوش آمدی</h2><p>۱۳ شخصیت تخصصی در محیط سه‌بعدی با اتاق‌های اختصاصی؛ گفت‌وگو و صدا در کنار فضای بصری.</p><div class="toolbar"><button id="settingsBtn">تنظیم اتصال هوش مصنوعی</button><button class="secondary" id="voiceHelp">راهنمای صدا</button><span class="pill" id="aiState">هوش مصنوعی: تنظیم نشده</span></div></section>
+<section class="section"><h2>دنیای سه‌بعدی</h2><div class="world"><canvas id="scene"></canvas><div class="scenehint">نمای سه‌بعدی • اتاق‌های جداگانه • مدل‌های انسانی</div></div><p class="muted">مدل‌های انسانی سه‌بعدی با جزئیات هندسی و اتاق‌های اختصاصی ساخته شده‌اند؛ فوتورئالیسم، صداهای اختصاصی و لب‌خوانی هنوز نیازمند دارایی‌های جداگانه‌اند.</p></section>
 <section class="section"><h2>شخصیت‌ها</h2><div class="grid" id="people"></div></section>
 <section class="section"><h2 id="chatTitle">گفت‌وگو با مدیر مرکزی AMIR AI</h2><div class="panel"><div class="toolbar"><button id="speakBtn" class="secondary">خواندن پاسخ با صدا</button><button id="listenBtn" class="secondary">🎙 گفتن پیام</button><button id="stopBtn" class="secondary">توقف صدا</button></div><div id="chat" class="chat"><div class="bubble assistant">سلام! من مدیر مرکزی AMIR AI هستم. برای فعال شدن پاسخ هوشمند، کلید رایگان Gemini را در تنظیمات وارد کن.</div></div><div class="chatrow"><input id="message" placeholder="پیامت را بنویس..."><button id="send">ارسال</button></div><p id="status"></p></div></section>
 <section id="settings" class="section hidden"><h2>تنظیمات اتصال رایگان</h2><div class="panel"><p>برای فعال‌سازی هوش مصنوعی، از Google AI Studio کلید رایگان بساز و این‌جا وارد کن. کلید فقط در حافظهٔ همین مرورگر ذخیره می‌شود و به مخزن GitHub فرستاده نمی‌شود.</p><p><a style="color:#e6cf91" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">باز کردن Google AI Studio و ساخت API Key</a></p><input id="apiKey" type="password" autocomplete="off" placeholder="Gemini API Key"><div class="toolbar"><button id="saveKey">ذخیره در همین دستگاه</button><button id="clearKey" class="secondary">پاک کردن کلید</button></div><small>مدل انتخاب‌شده: gemini-3.1-flash-lite. سهمیهٔ رایگان محدود است و ممکن است تغییر کند. در سطح رایگان، محتوای درخواست‌ها ممکن است برای بهبود محصولات گوگل استفاده شود؛ اطلاعات محرمانهٔ مشتریان یا رمزها را وارد نکن.</small></div></section>
@@ -23,8 +23,78 @@ const canvas=document.getElementById('scene'),scene=new THREE.Scene();scene.back
 scene.add(new THREE.HemisphereLight(0xc7e8dc,0x14251f,2));const key=new THREE.DirectionalLight(0xffe2aa,3);key.position.set(5,9,7);key.castShadow=true;scene.add(key);
 const floor=new THREE.Mesh(new THREE.CircleGeometry(9,64),new THREE.MeshStandardMaterial({color:0x123d35,roughness:.9}));floor.rotation.x=-Math.PI/2;floor.position.y=-.03;floor.receiveShadow=true;scene.add(floor);
 const ring=new THREE.Mesh(new THREE.TorusGeometry(5.7,.035,8,100),new THREE.MeshStandardMaterial({color:0xc6a65d,metalness:.65,roughness:.3}));ring.rotation.x=Math.PI/2;ring.position.y=.02;scene.add(ring);
-const room=new THREE.Group();scene.add(room);for(let i=0;i<13;i++){let a=i/13*Math.PI*2;let x=Math.cos(a)*4.2,z=Math.sin(a)*4.2;let g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=-a+Math.PI/2;let coat=[0x1c5b4d,0x304b68,0x6c4b69,0x8b653e,0x315d65][i%5];const mat=(c,rough=.75)=>new THREE.MeshStandardMaterial({color:c,roughness:rough});let body=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.75,4,8),mat(coat));body.position.y=1.02;body.castShadow=true;g.add(body);let neck=new THREE.Mesh(new THREE.CylinderGeometry(.11,.13,.18,12),mat(0xd9aa88));neck.position.y=1.52;g.add(neck);let skin=mat([0xe4b99b,0xc98f70,0xf0c8a6,0xb9795e][i%4]);let head=new THREE.Mesh(new THREE.SphereGeometry(.34,20,16),skin);head.scale.set(.82,1.08,.82);head.position.y=1.9;head.castShadow=true;g.add(head);let hair=new THREE.Mesh(new THREE.SphereGeometry(.355,16,12,0,Math.PI*2,0,Math.PI*.56),mat([0x211b19,0x38251d,0x17191d,0x5b3928][i%4]));hair.scale.set(.86,1.1,.9);hair.position.set(0,2.02,-.035);g.add(hair);for(let s of [-1,1]){let eye=new THREE.Mesh(new THREE.SphereGeometry(.035,8,8),mat(0x211a16));eye.position.set(s*.105,1.94,.275);g.add(eye)}let nose=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),skin);nose.scale.set(.65,1.3,.6);nose.position.set(0,1.86,.3);g.add(nose);let mouth=new THREE.Mesh(new THREE.BoxGeometry(.09,.018,.012),mat(0x713d39));mouth.position.set(0,1.77,.293);g.add(mouth);let pl=new THREE.Mesh(new THREE.CylinderGeometry(.52,.52,.08,32),mat(i===0?0xb99a55:0x254b43));pl.position.y=.05;g.add(pl);g.userData.index=i;room.add(g)}
-const central=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.4,.35,48),new THREE.MeshStandardMaterial({color:0x9e8247,metalness:.7,roughness:.25}));central.position.y=.25;scene.add(central);const orb=new THREE.Mesh(new THREE.SphereGeometry(.5,32,24),new THREE.MeshPhysicalMaterial({color:0x45b49a,metalness:.35,roughness:.12,emissive:0x0c4b3c,emissiveIntensity:.6}));orb.position.y=1.15;scene.add(orb);
+
+// Detailed 3D academy with 13 individual consultation suites and articulated human figures.
+const room=new THREE.Group();scene.add(room);
+const mat=(c,rough=.72,metalness=0)=>new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness});
+const skinTones=[0xe8bd9d,0xc98e70,0xf0c9a9,0xb9795e,0xd9a27f];
+const hairTones=[0x211b19,0x38251d,0x17191d,0x5b3928,0x2b2026];
+const outfits=[0x1c5b4d,0x304b68,0x6c4b69,0x8b653e,0x315d65,0x514a76,0x6c3d4d];
+const gold=mat(0xc9a85e,.3,.72), dark=mat(0x102b27), glass= new THREE.MeshPhysicalMaterial({color:0x77b8a5,transparent:true,opacity:.22,roughness:.18,metalness:.25});
+function box(parent,x,y,z,w,h,d,m){let o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function sphere(parent,x,y,z,sx,sy,sz,m){let o=new THREE.Mesh(new THREE.SphereGeometry(1,20,16),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=true;parent.add(o);return o}
+function cylinder(parent,x,y,z,rt,rb,h,m,n=20){let o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,n),m);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o}
+function makeHuman(i){
+ const g=new THREE.Group(), skin=mat(skinTones[i%skinTones.length]), hair=mat(hairTones[i%hairTones.length]), outfit=mat(outfits[i%outfits.length]), trim=mat(i%3===0?0xc8a65d:0xd7d9d2,.45,.35);
+ // legs, shoes and tailored outfit
+ for(const side of [-1,1]){
+  let leg=cylinder(g,side*.16,.52,0,.105,.13,.78,mat(0x202b2b));leg.rotation.z=side*-.035;
+  sphere(g,side*.16,.12,.09,.13,.09,.25,mat(0x171b1b));
+  let arm=cylinder(g,side*.39,1.16,0,.105,.13,.58,outfit);arm.rotation.z=side*-.18;
+  sphere(g,side*.46,.84,.035,.105,.12,.105,skin);
+  sphere(g,side*.405,1.46,.015,.115,.115,.115,skin);
+ }
+ // torso, waistcoat and collar
+ let torso=new THREE.Mesh(new THREE.CapsuleGeometry(.29,.56,5,12),outfit);torso.position.y=1.22;torso.castShadow=true;g.add(torso);
+ box(g,0,1.52,.255,.22,.18,.045,trim);
+ let belt= new THREE.Mesh(new THREE.CylinderGeometry(.275,.275,.055,24),trim);belt.position.y=.88;g.add(belt);
+ cylinder(g,0,1.56,0,.105,.11,.18,skin);
+ // face, ears, hair cap and long side locks
+ sphere(g,0,1.91,.015,.285,.36,.25,skin);
+ sphere(g,0,2.105,-.035,.292,.19,.265,hair);
+ sphere(g,-.245,1.91,-.005,.075,.23,.11,hair);
+ sphere(g,.245,1.91,-.005,.075,.23,.11,hair);
+ for(const side of [-1,1]){
+  sphere(g,side*.285,1.92,0,.045,.085,.055,skin);
+  sphere(g,side*.105,1.97,.231,.052,.034,.025,mat(0xffffff));
+  sphere(g,side*.105,1.97,.253,.023,.025,.014,mat(0x30241e));
+  let brow=box(g,side*.105,2.035,.237,.095,.018,.025,hair);brow.rotation.z=side*.08;
+ }
+ sphere(g,0,1.89,.265,.04,.075,.045,skin);
+ sphere(g,0,1.79,.249,.065,.022,.018,mat(0x8b4d50));
+ // hairline fringe and subtle jewelry
+ sphere(g,0,2.14,.13,.18,.09,.15,hair);
+ for(const side of [-1,1])sphere(g,side*.31,1.82,.015,.025,.035,.025,gold);
+ // jacket seams and badge
+ box(g,0,1.23,.286,.018,.53,.012,trim);
+ sphere(g,0,1.34,.3,.045,.045,.025,gold);
+ g.userData.index=i;return g;
+}
+function makeSuite(i){
+ const angle=i/13*Math.PI*2, radius=4.7, x=Math.cos(angle)*radius,z=Math.sin(angle)*radius;
+ const pod=new THREE.Group();pod.position.set(x,0,z);pod.rotation.y=-angle+Math.PI/2;room.add(pod);
+ const wall=mat(i%2?0x17473f:0x203d39), floorMat=mat(0x294c43), seat=mat(0x172f2b), wood=mat(0x705638);
+ // raised floor, side privacy fins, rear feature wall and gold arch
+ cylinder(pod,0,.08,0,1.38,1.38,.16,floorMat,40);
+ box(pod,-1.15,1.2,-.55,.12,2.4,1.7,wall);box(pod,1.15,1.2,-.55,.12,2.4,1.7,wall);
+ box(pod,0,1.2,-1.35,2.3,2.4,.12,wall);
+ let arch=new THREE.Mesh(new THREE.TorusGeometry(.77,.045,10,48,Math.PI),gold);arch.position.set(0,1.8,-1.27);arch.rotation.z=Math.PI;pod.add(arch);
+ // desk, display, chair and lamp
+ box(pod,0,.72,-.12,1.35,.12,.62,wood);box(pod,0,.39,-.12,.1,.62,.1,wood);
+ box(pod,0,1.22,-.43,.78,.48,.045,dark);
+ box(pod,0,1.22,-.395,.68,.37,.018,glass);
+ cylinder(pod,0,1.49,-.12,.035,.035,.42,gold);
+ sphere(pod,0,1.72,-.12,.13,.13,.13,mat(0xd8c17b));
+ // nameplate-like light strip, no text baked into geometry
+ box(pod,0,2.15,-1.275,.8,.045,.025,gold);
+ const human=makeHuman(i);human.position.set(0,0,.62);human.scale.setScalar(.82);pod.add(human);
+ pod.userData.index=i;
+ return pod;
+}
+for(let i=0;i<13;i++)makeSuite(i);
+// central command dais and glowing holographic core
+const central=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.4,.35,48),new THREE.MeshStandardMaterial({color:0x9e8247,metalness:.7,roughness:.25}));central.position.y=.25;scene.add(central);
+const orb=new THREE.Mesh(new THREE.SphereGeometry(.5,32,24),new THREE.MeshPhysicalMaterial({color:0x45b49a,metalness:.35,roughness:.12,emissive:0x0c4b3c,emissiveIntensity:.6}));orb.position.y=1.15;scene.add(orb);
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();renderer.domElement.addEventListener('click',e=>{const r=renderer.domElement.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-((e.clientY-r.top)/r.height*2-1);ray.setFromCamera(mouse,camera);let hits=ray.intersectObjects(room.children,true);if(hits.length){let o=hits[0].object;while(o.parent&&o.userData.index===undefined)o=o.parent;if(o.userData.index!==undefined)selectPerson(o.userData.index)}});
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(canvas);resize();function animate(){requestAnimationFrame(animate);controls.update();orb.rotation.y+=.003;room.children.forEach((g,i)=>{g.position.y=.025*Math.sin(Date.now()*.001+i)});renderer.render(scene,camera)}animate();window.pickAvatar=i=>{room.children.forEach((g,j)=>{g.scale.setScalar(j===i?1.13:1);})};
 function addBubble(t,who){let d=document.createElement('div');d.className='bubble '+who;d.textContent=t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
