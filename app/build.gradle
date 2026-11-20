@@ -12,3 +12,5 @@ android {
         versionName '1.0'
     }
 }
+
+// AMIR AI 2.0: rebuild Android wrapper with refreshed hosted experience.
